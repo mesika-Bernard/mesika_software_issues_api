@@ -1,0 +1,74 @@
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from issues.models import Project, Issue
+
+# Get content types
+project_content_type = ContentType.objects.get_for_model(Project)
+issue_content_type = ContentType.objects.get_for_model(Issue)
+
+# Create groups
+admin_group, _ = Group.objects.get_or_create(name='Administrators')
+pm_group, _ = Group.objects.get_or_create(name='Project Managers')
+dev_group, _ = Group.objects.get_or_create(name='Developers')
+reporter_group, _ = Group.objects.get_or_create(name='Reporters')
+
+# Assign permissions
+# Administrators: Full access to all models
+admin_permissions = Permission.objects.filter(
+    Q(content_type=project_content_type) | Q(content_type=issue_content_type)
+)
+admin_group.permissions.set(admin_permissions)
+
+# Project Managers: Manage projects and issues (assign, update, view)
+pm_permissions = [
+    Permission.objects.get(codename='add_project', content_type=project_content_type),
+    Permission.objects.get(codename='change_project', content_type=project_content_type),
+    Permission.objects.get(codename='delete_project', content_type=project_content_type),
+    Permission.objects.get(codename='view_project', content_type=project_content_type),
+    Permission.objects.get(codename='add_issue', content_type=issue_content_type),
+    Permission.objects.get(codename='change_issue', content_type=issue_content_type),
+    Permission.objects.get(codename='view_issue', content_type=issue_content_type),
+]
+pm_group.permissions.set(pm_permissions)
+
+# Developers: View and update assigned issues
+dev_permissions = [
+    Permission.objects.get(codename='view_issue', content_type=issue_content_type),
+    Permission.objects.get(codename='change_issue', content_type=issue_content_type),
+]
+dev_group.permissions.set(dev_permissions)
+
+# Reporters: Create and view their own issues
+reporter_permissions = [
+    Permission.objects.get(codename='add_issue', content_type=issue_content_type),
+    Permission.objects.get(codename='view_issue', content_type=issue_content_type),
+]
+reporter_group.permissions.set(reporter_permissions)
+
+print("Groups and permissions created successfully.")
+exit()
+
+
+
+
+
+ASSIgning PERMISSIONS
+
+
+from issues.models import CustomUser
+
+# Assign users (replace usernames with actual ones)
+admin_user = CustomUser.objects.get(username='admin_user')
+admin_user.groups.add(Group.objects.get(name='Administrators'))
+
+pm_user = CustomUser.objects.get(username='pm_user')
+pm_user.groups.add(Group.objects.get(name='Project Managers'))
+
+dev_user = CustomUser.objects.get(username='dev_user')
+dev_user.groups.add(Group.objects.get(name='Developers'))
+
+reporter_user = CustomUser.objects.get(username='reporter_user')
+reporter_user.groups.add(Group.objects.get(name='Reporters'))
+
+print("Users assigned to groups successfully.")
+exit()
