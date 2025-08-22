@@ -13,12 +13,7 @@ __pycache__/
 db.sqlite3
 media/
 staticfiles/
-
 # Virtual environment
 venv/
 env/
 
-# IDEs/editors
-.idea/
-.vscode/
-*.swp
